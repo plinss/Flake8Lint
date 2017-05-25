@@ -1193,11 +1193,19 @@ class Flake8Lint(object):
                 else:
                     interpreter = 'python'
                 log("guess interpreter: '{0}'".format(interpreter))
-            elif not os.path.exists(interpreter):
-                sublime.error_message(
-                    "Python Flake8 Lint error:\n"
-                    "python interpreter '%s' is not found" % interpreter
-                )
+            else:
+                if not os.path.isabs(interpreter):
+                    system_path = os.get_exec_path()
+                    for path in system_path:
+                        if (os.path.exists(os.path.join(path, interpreter))):
+                            interpreter = os.path.join(path, interpreter)
+                            break
+                    else:
+                        if not os.path.exists(interpreter):
+                            sublime.error_message(
+                                "Python Flake8 Lint error:\n"
+                                "python interpreter '%s' is not found" % interpreter
+                            )
 
             # build linter path for Packages Manager installation
             linter = os.path.join(PLUGIN_DIR, 'lint.py')
